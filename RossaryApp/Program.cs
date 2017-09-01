@@ -33,13 +33,12 @@ namespace RossaryApp
 
         private static void SetRosaryTab()
         {
+            //Prawa strona
 
-            rosaryTab[h - 46, 16] = 1;
-
-            rosaryTab[h - 45, 24] = 1;
-            rosaryTab[h - 44, 25] = 1;
-            rosaryTab[h - 43, 26] = 1;
-            rosaryTab[h - 42, 27] = 1;
+            rosaryTab[h - 44, 18] = 1;
+            rosaryTab[h - 44, 21] = 1;
+            rosaryTab[h - 43, 24] = 1;
+            rosaryTab[h - 42, 26] = 1;
             rosaryTab[h - 41, 28] = 1;
 
             rosaryTab[h - 39, 29] = 1;
@@ -68,12 +67,13 @@ namespace RossaryApp
             rosaryTab[h - 16, 19] = 1;
             rosaryTab[h - 15, 18] = 1;
 
+            //Lewa strona
 
 
-            rosaryTab[h - 45, 7] = 1;
-            rosaryTab[h - 44, 6] = 1;
-            rosaryTab[h - 43, 5] = 1;
-            rosaryTab[h - 42, 4] = 1;
+            rosaryTab[h - 44, 14] = 1;
+            rosaryTab[h - 44, 11] = 1;
+            rosaryTab[h - 43, 7] = 1;
+            rosaryTab[h - 42, 5] = 1;
             rosaryTab[h - 41, 3] = 1;
 
             rosaryTab[h - 39, 2] = 1;
