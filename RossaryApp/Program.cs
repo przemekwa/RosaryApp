@@ -12,14 +12,13 @@ namespace RossaryApp
         private static int[,] rosaryTab = new int[h, 40];
         private static List<KeyValuePair<int, int>> rosaryXY;
 
-        public Program()
-        {
-            SetRosaryTab();
-        }
+        private static int smallBeadCount = 0;
+        private static int bigBeadCount = 1;
 
         static void Main(string[] args)
         {
-            SetRosaryTab();
+            SetRosaryXY();
+            Console.CursorVisible = false;
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
@@ -27,21 +26,39 @@ namespace RossaryApp
 
             var prayIndex = -2;
 
-              while (key != ConsoleKey.Escape && prayIndex!=58)
+            while (key != ConsoleKey.Escape && prayIndex != 58)
             {
                 key = Console.ReadKey(true).Key;
+                
                 Console.Clear();
                 DrawCross();
                 prayIndex++;
 
-                KeyValuePair<int, int> xy;
+               
 
                 if (prayIndex >= 0)
                 {
-                    xy = rosaryXY[prayIndex];
+                    if (prayIndex > 4)
+                    {
+                        if (smallBeadCount == 10)
+                        {
+                            bigBeadCount++;
+                            smallBeadCount = -1;
+                        }
+                        smallBeadCount++;
+                    }
+
+                    var xy = rosaryXY[prayIndex];
+
+                    rosaryTab[xy.Key, xy.Value] = 1;
+
+
+                    Console.CursorTop = 0;
+                    Console.CursorLeft = 0;
+                    Console.Write($"{bigBeadCount}.{smallBeadCount}");
                 }
 
-                rosaryTab[xy.Key, xy.Value] = 1;
+
 
                 DrawRosary(rosaryTab);
             }
@@ -50,7 +67,6 @@ namespace RossaryApp
 
             Console.WriteLine($"Koniec w {GetStopWatchString(stopWatch.Elapsed)}");
             Console.ReadKey();
-
         }
 
         private static void DrawCross()
@@ -74,9 +90,9 @@ namespace RossaryApp
             }
         }
 
-        private static void SetRosaryTab()
+        private static void SetRosaryXY()
         {
-             rosaryXY = new List<KeyValuePair<int, int>>
+            rosaryXY = new List<KeyValuePair<int, int>>
             {
                 new KeyValuePair<int, int>(h - 15, 18), //5.10
                 new KeyValuePair<int, int>(h - 16, 19), //5.9
@@ -150,13 +166,12 @@ namespace RossaryApp
                 new KeyValuePair<int, int>(h - 7, 16) 
             };
 
-
             rosaryXY.Reverse();
         }
 
-        public static string GetStopWatchString(TimeSpan ts)
+        private static string GetStopWatchString(TimeSpan ts)
         {
-            return $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}:{(ts.Milliseconds / 10):00}";
+            return $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{(ts.Milliseconds / 10):00}";
         }
 
         private static void DrawRosary(int[,] rosary)
