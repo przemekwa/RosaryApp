@@ -26,12 +26,20 @@ namespace RossaryApp
 
             var prayIndex = -2;
 
+            Console.WriteLine("Rozpocznij modlitwę...");
+
             while (key != ConsoleKey.Escape && prayIndex != 58)
             {
                 key = Console.ReadKey(true).Key;
-                
+
+                if (key != ConsoleKey.Enter)
+                {
+                    continue;
+                }
+
                 Console.Clear();
                 DrawCross();
+
                 prayIndex++;
 
                
@@ -55,7 +63,8 @@ namespace RossaryApp
 
                     Console.CursorTop = 0;
                     Console.CursorLeft = 0;
-                    Console.Write($"{bigBeadCount}.{smallBeadCount}");
+                    Console.WriteLine($"{bigBeadCount}.{smallBeadCount}");
+                    Console.WriteLine("Ojcze Nasz");
                 }
 
 
