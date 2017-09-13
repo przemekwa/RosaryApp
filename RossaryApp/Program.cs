@@ -14,15 +14,46 @@ namespace RossaryApp
         public static IConfigurationRoot Configuration { get; set; }
         private static int[,] rosaryTab = new int[Consts.HEIGHT, 40];
 
-        private static int smallBeadCount = 0;
+        private static int smallBeadCount;
         private static int bigBeadCount = 1;
 
+        private static Type prayType;
+
+
+
+        private static List<string> prayList = new List<string>
+        {
+            "ChapletOfTheDivineMercy"
+        };
 
         static void Main(string[] args)
         {
-            IRosaryPray currentPray = new ChapletOfTheDivineMercy();
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Brak parametru. Podaj parametr(rodzaj modlitwy) dla różańca");
+                Console.ReadKey();
+                return;
+            }
 
-            var reload = false;
+            if (string.IsNullOrEmpty(args[0]))
+            {
+                Console.WriteLine("Brak zdefiniowanej modlitwy w argumentach");
+                return;
+            }
+
+            switch(args[0])
+            {
+                case "ChapletOfTheDivineMercy":
+                    prayType = typeof(ChapletOfTheDivineMercy);
+                    break;
+                default:
+                    Console.WriteLine("Brak modlitwy");
+                    return;
+            }
+
+
+            IRosaryPray currentPray = (IRosaryPray)Activator.CreateInstance(prayType);
+
 
             Console.CursorVisible = false;
             var stopWatch = new Stopwatch();
@@ -30,7 +61,7 @@ namespace RossaryApp
 
             ConsoleKey key = ConsoleKey.Enter;
 
-            var prayIndex = 0;
+            var prayIndex = -1;
 
             Console.WriteLine("Rozpocznij modlitwę...");
 
@@ -38,28 +69,9 @@ namespace RossaryApp
             {
                 if (key == ConsoleKey.L)
                 {
-                    switch(Console.ReadKey(true).Key)
-                    {
-                        case ConsoleKey.P:
-                            currentPray = GetRosaryPrayForTranslation("pl");
-                            break;
-                        case ConsoleKey.E:
-                            currentPray = GetRosaryPrayForTranslation("en");
-                            break;
-                        case ConsoleKey.C:
-                            currentPray = GetRosaryPrayForTranslation("cs");
-                            break;
-                        case ConsoleKey.W:
-                            currentPray = GetRosaryPrayForTranslation("it-IT");
-                            break;
-                        default:
-                            currentPray = GetRosaryPrayForTranslation("pl");
-                            break;
-                    }
-
+                    currentPray = ChangeLanguage();
                     continue;
                 }
-            
 
                 if ((key != ConsoleKey.Enter) && (key != ConsoleKey.Backspace))
                 {
@@ -68,7 +80,7 @@ namespace RossaryApp
 
                 Console.Clear();
 
-                if (prayIndex <= 0 )
+                if (prayIndex < 0)
                 {
                     DrawCross(currentPray.GetCrossCoordinate());
                     DrawRosary(rosaryTab);
@@ -78,42 +90,103 @@ namespace RossaryApp
 
                 if (key == ConsoleKey.Backspace)
                 {
-                    prayIndex--;
-                    var xy = currentPray.Pray[prayIndex].Coordinate;
-                    rosaryTab[xy.Key, xy.Value] = 0;
-                }
-                else
-                {
-                    prayIndex++;
-                    var xy = currentPray.Pray[prayIndex].Coordinate;
-                    rosaryTab[xy.Key, xy.Value] = 1;
-                }
-
-                DrawPrayText(currentPray.Pray[prayIndex].PrayText, currentPray, prayIndex);
-
-
-                
-                    if (prayIndex > 4)
+                    if (prayIndex < 0)
                     {
-                        if (smallBeadCount == 10)
-                        {
-                            bigBeadCount++;
-                            smallBeadCount = -1;
-                        }
-                        smallBeadCount++;
+                        break;
                     }
+
+                    prayIndex--;
+
+                    var xy = currentPray.Pray[prayIndex].Coordinate;
+
+                    rosaryTab[xy.Key, xy.Value] = 0;
+
+                    DrawPrayText(currentPray.Pray[prayIndex].PrayText, currentPray, prayIndex);
+
+                    BeadCount(prayIndex, true);
 
                     Console.Write($"{bigBeadCount}.{smallBeadCount}");
 
+                    DrawRosary(rosaryTab);
 
+                }
+                else
+                {
+                    var xy = currentPray.Pray[prayIndex].Coordinate;
+                    prayIndex++;
+                    rosaryTab[xy.Key, xy.Value] = 1;
 
-                DrawRosary(rosaryTab);
+                    DrawPrayText(currentPray.Pray[prayIndex].PrayText, currentPray, prayIndex);
+
+                    BeadCount(prayIndex);
+
+                    Console.Write($"{bigBeadCount}.{smallBeadCount}");
+
+                    DrawRosary(rosaryTab);
+                }
             }
 
             stopWatch.Stop();
 
             Console.WriteLine($"Koniec w {GetStopWatchString(stopWatch.Elapsed)}");
+
             Console.ReadKey();
+        }
+
+        private static IRosaryPray ChangeLanguage()
+        {
+            IRosaryPray currentPray;
+
+            switch (Console.ReadKey(true).Key)
+            {
+                case ConsoleKey.P:
+                    currentPray = GetRosaryPrayForTranslation("pl");
+                    break;
+                case ConsoleKey.E:
+                    currentPray = GetRosaryPrayForTranslation("en");
+                    break;
+                case ConsoleKey.C:
+                    currentPray = GetRosaryPrayForTranslation("cs");
+                    break;
+                case ConsoleKey.W:
+                    currentPray = GetRosaryPrayForTranslation("it-IT");
+                    break;
+                default:
+                    currentPray = GetRosaryPrayForTranslation("pl");
+                    break;
+            }
+
+            return currentPray;
+        }
+
+        private static void BeadCount(int prayIndex, bool back = false)
+        {
+
+            if (back)
+            {
+                if (prayIndex > 4)
+                {
+                    if (smallBeadCount == 0)
+                    {
+                        bigBeadCount--;
+                        smallBeadCount = 11;
+                    }
+
+                    smallBeadCount--;
+                }
+
+                return;
+            }
+
+            if (prayIndex > 4)
+            {
+                if (smallBeadCount == 10)
+                {
+                    bigBeadCount++;
+                    smallBeadCount = -1;
+                }
+                smallBeadCount++;
+            }
         }
 
         private static void DrawPrayText(string prayText, IRosaryPray currentPray, int prayIndex)
@@ -125,11 +198,10 @@ namespace RossaryApp
 
         private static IRosaryPray GetRosaryPrayForTranslation(string cutureString)
         {
-            IRosaryPray currentPray;
             CultureInfo.CurrentCulture = new CultureInfo(cutureString);
             CultureInfo.CurrentUICulture = new CultureInfo(cutureString);
-            currentPray = new ChapletOfTheDivineMercy();
-            return currentPray;
+            
+            return (IRosaryPray)Activator.CreateInstance(prayType);
         }
 
         private static void DrawCross(IEnumerable<KeyValuePair<int, int>> cross)
