@@ -5,10 +5,18 @@ using System.Text;
 namespace RossaryApp.RosaryPrayers
 {
     using Models;
+    using System.Linq;
 
     public class ChapletOfTheDivineMercy : IRosaryPray
     {
-        public IEnumerable<RosaryPrayModel> GetRosary()
+        public List<RosaryPrayModel> Pray { get; private set; }
+        
+        public ChapletOfTheDivineMercy()
+        {
+            this.Pray = this.GetRosary().ToList();
+        }
+
+        private IEnumerable<RosaryPrayModel> GetRosary()
         {
             var rosary = new List<RosaryPrayModel>
             {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RossaryApp.RosaryPrayers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,66 +13,109 @@ namespace RossaryApp
     {
         public static IConfigurationRoot Configuration { get; set; }
 
-        private const int h = 50;
 
-        private static int[,] rosaryTab = new int[h, 40];
+        private static int[,] rosaryTab = new int[Consts.h, 40];
         private static List<KeyValuePair<int, int>> rosaryXY;
 
         private static int smallBeadCount = 0;
         private static int bigBeadCount = 1;
 
+
         static void Main(string[] args)
         {
+            IRosaryPray currentPray = new ChapletOfTheDivineMercy();
+            
 
-            SetRosaryXY();
             Console.CursorVisible = false;
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
             ConsoleKey key = ConsoleKey.Enter;
 
-            var prayIndex = -2;
+            var prayIndex = -1;
 
             Console.WriteLine("Rozpocznij modlitwę...");
 
-            while (key != ConsoleKey.Escape && prayIndex != 58)
+            while ((key = Console.ReadKey(true).Key) != ConsoleKey.Escape && prayIndex != 58)
             {
-                key = Console.ReadKey(true).Key;
 
-                if (key != ConsoleKey.Enter)
+                if (key == ConsoleKey.L)
+                {
+                    switch(Console.ReadKey(true).Key)
+                    {
+                        case ConsoleKey.P:
+                            currentPray = GetRosaryPrayForTranslation("pl");
+                            break;
+                        case ConsoleKey.E:
+                            currentPray = GetRosaryPrayForTranslation("en");
+                            break;
+                        default:
+                            currentPray = GetRosaryPrayForTranslation("pl");
+                            break;
+                    }
+                }
+            
+
+                if ((key != ConsoleKey.Enter) && (key != ConsoleKey.Backspace))
                 {
                     continue;
                 }
 
                 Console.Clear();
-                DrawCross();
 
-                prayIndex++;
-
-               
-
-                if (prayIndex >= 0)
+                if (prayIndex < 0 )
                 {
-                    if (prayIndex > 4)
-                    {
-                        if (smallBeadCount == 10)
-                        {
-                            bigBeadCount++;
-                            smallBeadCount = -1;
-                        }
-                        smallBeadCount++;
-                    }
+                    DrawCross(currentPray.GetCrossCoordinate());
+                    prayIndex++;
+                    continue;
+                }
 
-                    var xy = rosaryXY[prayIndex];
+                if (key == ConsoleKey.Backspace)
+                {
+                    
+                    var xy = currentPray.Pray[prayIndex].Coordinate;
+                    prayIndex--;
+
+                    rosaryTab[xy.Key, xy.Value] = 0;
+                }
+                else
+                {
+                    prayIndex++;
+                    var xy = currentPray.Pray[prayIndex].Coordinate;
 
                     rosaryTab[xy.Key, xy.Value] = 1;
-
-
-                    Console.CursorTop = 0;
-                    Console.CursorLeft = 0;
-                    Console.WriteLine($"{bigBeadCount}.{smallBeadCount}");
-                    Console.WriteLine("Ojcze Nasz");
                 }
+
+                Console.CursorTop = 0;
+                Console.CursorLeft = 0;
+                Console.WriteLine(currentPray.Pray[prayIndex].PrayText);
+
+
+
+                //if (prayIndex >= 0)
+                //{
+
+
+
+                //    if (prayIndex > 4)
+                //    {
+                //        if (smallBeadCount == 10)
+                //        {
+                //            bigBeadCount++;
+                //            smallBeadCount = -1;
+                //        }
+                //        smallBeadCount++;
+                //    }
+
+
+
+
+
+                //    Console.CursorTop = 0;
+                //    Console.CursorLeft = 0;
+                //    Console.WriteLine($"{bigBeadCount}.{smallBeadCount}");
+                //    Console.WriteLine("Ojcze Nasz");
+                //}
 
 
 
@@ -84,104 +128,21 @@ namespace RossaryApp
             Console.ReadKey();
         }
 
-        private static void DrawCross()
+        private static IRosaryPray GetRosaryPrayForTranslation(string cutureString)
         {
-            var cross = new List<KeyValuePair<int, int>>
-            {
-                new KeyValuePair<int, int>(h-4, 18),
-                new KeyValuePair<int, int>(h-4, 17),
-                new KeyValuePair<int, int>(h-4, 14),
-                new KeyValuePair<int, int>(h-4, 15),
-                new KeyValuePair<int, int>(h-1, 16),
-                new KeyValuePair<int, int>(h-2, 16),
-                new KeyValuePair<int, int>(h-3, 16),
-                new KeyValuePair<int, int>(h-4, 16),
-                new KeyValuePair<int, int>(h-5, 16),
-            };
+            IRosaryPray currentPray;
+            CultureInfo.CurrentCulture = new CultureInfo(cutureString);
+            CultureInfo.CurrentUICulture = new CultureInfo(cutureString);
+            currentPray = new ChapletOfTheDivineMercy();
+            return currentPray;
+        }
 
+        private static void DrawCross(IEnumerable<KeyValuePair<int, int>> cross)
+        {
             foreach (var item in cross)
             {
                 rosaryTab[item.Key, item.Value] = 1;
             }
-        }
-
-        private static void SetRosaryXY()
-        {
-            rosaryXY = new List<KeyValuePair<int, int>>
-            {
-                new KeyValuePair<int, int>(h - 15, 18), //5.10
-                new KeyValuePair<int, int>(h - 16, 19), //5.9
-                new KeyValuePair<int, int>(h - 17, 20), //5.8
-                new KeyValuePair<int, int>(h - 18, 21), //5.7
-                new KeyValuePair<int, int>(h - 19, 22), //5.6
-                new KeyValuePair<int, int>(h - 20, 23), //5.5
-                new KeyValuePair<int, int>(h - 21, 24), //5.4
-                new KeyValuePair<int, int>(h - 22, 25), //5.3
-                new KeyValuePair<int, int>(h - 23, 26), //5.2
-                new KeyValuePair<int, int>(h - 24, 27), //5.1
-
-                new KeyValuePair<int, int>(h - 26, 28), //5.0
-
-                new KeyValuePair<int, int>(h - 28, 29), //4.10
-                new KeyValuePair<int, int>(h - 29, 29), //4.9
-                new KeyValuePair<int, int>(h - 30, 29), //4.8
-                new KeyValuePair<int, int>(h - 31, 29), //4.7
-                new KeyValuePair<int, int>(h - 32, 29), //4.6
-                new KeyValuePair<int, int>(h - 33, 29), //4.5
-                new KeyValuePair<int, int>(h - 34, 29), //4.4
-                new KeyValuePair<int, int>(h - 35, 29), //4.3
-                new KeyValuePair<int, int>(h - 36, 29), //4.2
-                new KeyValuePair<int, int>(h - 37, 29), //4.1
-
-                new KeyValuePair<int, int>(h - 39, 29), //4.0
-                
-                new KeyValuePair<int, int>(h - 41, 28), //3.10
-                new KeyValuePair<int, int>(h - 42, 26), //3.9
-                new KeyValuePair<int, int>(h - 43, 24), //3.8
-                new KeyValuePair<int, int>(h - 44, 21), //3.7
-                new KeyValuePair<int, int>(h - 44, 18), //3.6
-                new KeyValuePair<int, int>(h - 44, 14), //3.5
-                new KeyValuePair<int, int>(h - 44, 11), //3.4
-                new KeyValuePair<int, int>(h - 43, 7),  //3.3
-                new KeyValuePair<int, int>(h - 42, 5),  //3.2
-                new KeyValuePair<int, int>(h - 41, 3),  //3.1
-
-                new KeyValuePair<int, int>(h - 39, 2), //3.0
-
-                new KeyValuePair<int, int>(h - 37, 2), //2.10
-                new KeyValuePair<int, int>(h - 36, 2), //2.9
-                new KeyValuePair<int, int>(h - 35, 2), //2.8
-                new KeyValuePair<int, int>(h - 34, 2), //2.7
-                new KeyValuePair<int, int>(h - 33, 2), //2.6
-                new KeyValuePair<int, int>(h - 32, 2), //2.5
-                new KeyValuePair<int, int>(h - 31, 2), //2.4
-                new KeyValuePair<int, int>(h - 30, 2), //2.3
-                new KeyValuePair<int, int>(h - 29, 2), //2.2
-                new KeyValuePair<int, int>(h - 28, 2), //2.1
-
-                new KeyValuePair<int, int>(h - 26, 3),  //2.0
-
-                new KeyValuePair<int, int>(h - 24, 4),  //1.10
-                new KeyValuePair<int, int>(h - 23, 5),  //1.9
-                new KeyValuePair<int, int>(h - 22, 6),  //1.8
-                new KeyValuePair<int, int>(h - 21, 7),  //1.7
-                new KeyValuePair<int, int>(h - 20, 8),  //1.6
-                new KeyValuePair<int, int>(h - 19, 9),  //1.5
-                new KeyValuePair<int, int>(h - 18, 10), //1.4
-                new KeyValuePair<int, int>(h - 17, 11), //1.3
-                new KeyValuePair<int, int>(h - 16, 12), //1.2
-                new KeyValuePair<int, int>(h - 15, 13), //1.1
-
-                new KeyValuePair<int, int>(h - 13, 16), //1.0
-
-                new KeyValuePair<int, int>(h - 11, 16), 
-                new KeyValuePair<int, int>(h - 10, 16), 
-                new KeyValuePair<int, int>(h - 9, 16), 
-
-                new KeyValuePair<int, int>(h - 7, 16) 
-            };
-
-            rosaryXY.Reverse();
         }
 
         private static string GetStopWatchString(TimeSpan ts)
@@ -191,7 +152,7 @@ namespace RossaryApp
 
         private static void DrawRosary(int[,] rosary)
         {
-            for (int i = 0; i < h; i++)
+            for (int i = 0; i < Consts.h; i++)
             {
                 for (int j = 0; j < 40; j++)
                 {
