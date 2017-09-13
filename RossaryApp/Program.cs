@@ -1,12 +1,17 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+
 
 namespace RossaryApp
 {
     class Program
     {
+        public static IConfigurationRoot Configuration { get; set; }
+
         private const int h = 50;
 
         private static int[,] rosaryTab = new int[h, 40];
@@ -17,6 +22,7 @@ namespace RossaryApp
 
         static void Main(string[] args)
         {
+
             SetRosaryXY();
             Console.CursorVisible = false;
             var stopWatch = new Stopwatch();
