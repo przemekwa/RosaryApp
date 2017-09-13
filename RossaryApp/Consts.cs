@@ -6,6 +6,6 @@ namespace RossaryApp
 {
     public static class Consts
     {
-        public const int h = 50;
+        public const int HEIGHT = 50;
     }
 }

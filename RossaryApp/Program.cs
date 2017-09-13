@@ -12,10 +12,7 @@ namespace RossaryApp
     class Program
     {
         public static IConfigurationRoot Configuration { get; set; }
-
-
-        private static int[,] rosaryTab = new int[Consts.h, 40];
-        private static List<KeyValuePair<int, int>> rosaryXY;
+        private static int[,] rosaryTab = new int[Consts.HEIGHT, 40];
 
         private static int smallBeadCount = 0;
         private static int bigBeadCount = 1;
@@ -24,7 +21,8 @@ namespace RossaryApp
         static void Main(string[] args)
         {
             IRosaryPray currentPray = new ChapletOfTheDivineMercy();
-            
+
+            var reload = false;
 
             Console.CursorVisible = false;
             var stopWatch = new Stopwatch();
@@ -32,13 +30,12 @@ namespace RossaryApp
 
             ConsoleKey key = ConsoleKey.Enter;
 
-            var prayIndex = -1;
+            var prayIndex = 0;
 
             Console.WriteLine("Rozpocznij modlitwę...");
 
             while ((key = Console.ReadKey(true).Key) != ConsoleKey.Escape && prayIndex != 58)
             {
-
                 if (key == ConsoleKey.L)
                 {
                     switch(Console.ReadKey(true).Key)
@@ -49,10 +46,18 @@ namespace RossaryApp
                         case ConsoleKey.E:
                             currentPray = GetRosaryPrayForTranslation("en");
                             break;
+                        case ConsoleKey.C:
+                            currentPray = GetRosaryPrayForTranslation("cs");
+                            break;
+                        case ConsoleKey.W:
+                            currentPray = GetRosaryPrayForTranslation("it-IT");
+                            break;
                         default:
                             currentPray = GetRosaryPrayForTranslation("pl");
                             break;
                     }
+
+                    continue;
                 }
             
 
@@ -63,59 +68,42 @@ namespace RossaryApp
 
                 Console.Clear();
 
-                if (prayIndex < 0 )
+                if (prayIndex <= 0 )
                 {
                     DrawCross(currentPray.GetCrossCoordinate());
+                    DrawRosary(rosaryTab);
                     prayIndex++;
                     continue;
                 }
 
                 if (key == ConsoleKey.Backspace)
                 {
-                    
-                    var xy = currentPray.Pray[prayIndex].Coordinate;
                     prayIndex--;
-
+                    var xy = currentPray.Pray[prayIndex].Coordinate;
                     rosaryTab[xy.Key, xy.Value] = 0;
                 }
                 else
                 {
                     prayIndex++;
                     var xy = currentPray.Pray[prayIndex].Coordinate;
-
                     rosaryTab[xy.Key, xy.Value] = 1;
                 }
 
-                Console.CursorTop = 0;
-                Console.CursorLeft = 0;
-                Console.WriteLine(currentPray.Pray[prayIndex].PrayText);
+                DrawPrayText(currentPray.Pray[prayIndex].PrayText, currentPray, prayIndex);
 
 
+                
+                    if (prayIndex > 4)
+                    {
+                        if (smallBeadCount == 10)
+                        {
+                            bigBeadCount++;
+                            smallBeadCount = -1;
+                        }
+                        smallBeadCount++;
+                    }
 
-                //if (prayIndex >= 0)
-                //{
-
-
-
-                //    if (prayIndex > 4)
-                //    {
-                //        if (smallBeadCount == 10)
-                //        {
-                //            bigBeadCount++;
-                //            smallBeadCount = -1;
-                //        }
-                //        smallBeadCount++;
-                //    }
-
-
-
-
-
-                //    Console.CursorTop = 0;
-                //    Console.CursorLeft = 0;
-                //    Console.WriteLine($"{bigBeadCount}.{smallBeadCount}");
-                //    Console.WriteLine("Ojcze Nasz");
-                //}
+                    Console.Write($"{bigBeadCount}.{smallBeadCount}");
 
 
 
@@ -126,6 +114,13 @@ namespace RossaryApp
 
             Console.WriteLine($"Koniec w {GetStopWatchString(stopWatch.Elapsed)}");
             Console.ReadKey();
+        }
+
+        private static void DrawPrayText(string prayText, IRosaryPray currentPray, int prayIndex)
+        {
+            Console.CursorTop = 1;
+            Console.CursorLeft = 0;
+            Console.WriteLine(currentPray.Pray[prayIndex].PrayText);
         }
 
         private static IRosaryPray GetRosaryPrayForTranslation(string cutureString)
@@ -152,7 +147,7 @@ namespace RossaryApp
 
         private static void DrawRosary(int[,] rosary)
         {
-            for (int i = 0; i < Consts.h; i++)
+            for (int i = 0; i < Consts.HEIGHT; i++)
             {
                 for (int j = 0; j < 40; j++)
                 {
