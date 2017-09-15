@@ -19,44 +19,31 @@ namespace RossaryApp
 
         private static Type prayType;
 
-
-
-        private static List<string> prayList = new List<string>
-        {
-            "ChapletOfTheDivineMercy"
-        };
-
         static void Main(string[] args)
         {
-            if (args.Length == 0)
+            ParametrsConfiguration.ManageArgs(args);
+
+            foreach (var item in ParametrsConfiguration.ParamList
+                .Where(s=>!string.IsNullOrEmpty(s.ErrorMsg)))
             {
-                Console.WriteLine("Brak parametru. Podaj parametr(rodzaj modlitwy) dla różańca");
+                Console.WriteLine(item.ErrorMsg);
                 Console.ReadKey();
                 return;
             }
 
-            if (string.IsNullOrEmpty(args[0]))
-            {
-                Console.WriteLine("Brak zdefiniowanej modlitwy w argumentach");
-                return;
-            }
-
-            switch(args[0])
+            switch (ParametrsConfiguration.ParamList.First().Value)
             {
                 case "ChapletOfTheDivineMercy":
                     prayType = typeof(ChapletOfTheDivineMercy);
                     break;
-                default:
-                    Console.WriteLine("Brak modlitwy");
-                    return;
             }
-
 
             IRosaryPray currentPray = (IRosaryPray)Activator.CreateInstance(prayType);
 
-
             Console.CursorVisible = false;
+
             var stopWatch = new Stopwatch();
+
             stopWatch.Start();
 
             ConsoleKey key = ConsoleKey.Enter;
@@ -69,7 +56,7 @@ namespace RossaryApp
             {
                 if (key == ConsoleKey.L)
                 {
-                    currentPray = ChangeLanguage();
+                    currentPray = ConsoleChangeLanguage();
                     continue;
                 }
 
@@ -133,7 +120,7 @@ namespace RossaryApp
             Console.ReadKey();
         }
 
-        private static IRosaryPray ChangeLanguage()
+        private static IRosaryPray ConsoleChangeLanguage()
         {
             IRosaryPray currentPray;
 
@@ -149,7 +136,7 @@ namespace RossaryApp
                     currentPray = GetRosaryPrayForTranslation("cs");
                     break;
                 case ConsoleKey.W:
-                    currentPray = GetRosaryPrayForTranslation("it-IT");
+                    currentPray = GetRosaryPrayForTranslation("it");
                     break;
                 default:
                     currentPray = GetRosaryPrayForTranslation("pl");
@@ -161,7 +148,6 @@ namespace RossaryApp
 
         private static void BeadCount(int prayIndex, bool back = false)
         {
-
             if (back)
             {
                 if (prayIndex > 4)
