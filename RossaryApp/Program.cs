@@ -14,9 +14,6 @@ namespace RossaryApp
         public static IConfigurationRoot Configuration { get; set; }
         private static int[,] rosaryTab = new int[Consts.HEIGHT, 40];
 
-        private static int smallBeadCount;
-        private static int bigBeadCount = 1;
-
         private static Type prayType;
 
         static void Main(string[] args)
@@ -90,26 +87,20 @@ namespace RossaryApp
 
                     DrawPrayText(currentPray.Pray[prayIndex].PrayText, currentPray, prayIndex);
 
-                    BeadCount(prayIndex, true);
-
-                    Console.Write($"{bigBeadCount}.{smallBeadCount}");
-
                     DrawRosary(rosaryTab);
 
                 }
                 else
                 {
                     var xy = currentPray.Pray[prayIndex].Coordinate;
-                    prayIndex++;
+                    
                     rosaryTab[xy.Key, xy.Value] = 1;
 
                     DrawPrayText(currentPray.Pray[prayIndex].PrayText, currentPray, prayIndex);
 
-                    BeadCount(prayIndex);
-
-                    Console.Write($"{bigBeadCount}.{smallBeadCount}");
-
                     DrawRosary(rosaryTab);
+
+                    prayIndex++;
                 }
             }
 
@@ -146,40 +137,14 @@ namespace RossaryApp
             return currentPray;
         }
 
-        private static void BeadCount(int prayIndex, bool back = false)
-        {
-            if (back)
-            {
-                if (prayIndex > 4)
-                {
-                    if (smallBeadCount == 0)
-                    {
-                        bigBeadCount--;
-                        smallBeadCount = 11;
-                    }
-
-                    smallBeadCount--;
-                }
-
-                return;
-            }
-
-            if (prayIndex > 4)
-            {
-                if (smallBeadCount == 10)
-                {
-                    bigBeadCount++;
-                    smallBeadCount = -1;
-                }
-                smallBeadCount++;
-            }
-        }
+        
 
         private static void DrawPrayText(string prayText, IRosaryPray currentPray, int prayIndex)
         {
             Console.CursorTop = 1;
             Console.CursorLeft = 0;
             Console.WriteLine(currentPray.Pray[prayIndex].PrayText);
+            Console.WriteLine(currentPray.Pray[prayIndex].PrayNumber);
         }
 
         private static IRosaryPray GetRosaryPrayForTranslation(string cutureString)
