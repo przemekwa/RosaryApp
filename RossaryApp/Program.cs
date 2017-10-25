@@ -74,14 +74,20 @@ namespace RossaryApp
 
                 if (key == ConsoleKey.Backspace)
                 {
+                    prayIndex--;
+
                     if (prayIndex < 0)
                     {
                         break;
                     }
 
+                    var xy = currentPray.Pray[prayIndex].Coordinate;
+
+                    rosaryTab[xy.Key, xy.Value] = 0;
+
                     prayIndex--;
 
-                    var xy = currentPray.Pray[prayIndex].Coordinate;
+                    xy = currentPray.Pray[prayIndex].Coordinate;
 
                     rosaryTab[xy.Key, xy.Value] = 0;
 
