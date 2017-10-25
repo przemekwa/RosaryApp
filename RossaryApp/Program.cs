@@ -72,42 +72,18 @@ namespace RossaryApp
                     continue;
                 }
 
+                var currentXY = currentPray.Pray[prayIndex].Coordinate;
+
                 if (key == ConsoleKey.Backspace)
                 {
-                    prayIndex--;
-
-                    if (prayIndex < 0)
-                    {
-                        break;
-                    }
-
-                    var xy = currentPray.Pray[prayIndex].Coordinate;
-
-                    rosaryTab[xy.Key, xy.Value] = 0;
-
-                    prayIndex--;
-
-                    xy = currentPray.Pray[prayIndex].Coordinate;
-
-                    rosaryTab[xy.Key, xy.Value] = 0;
-
-                    DrawPrayText(currentPray.Pray[prayIndex].PrayText, currentPray, prayIndex);
-
-                    DrawRosary(rosaryTab);
-
+                    Back(currentXY, currentPray, ref prayIndex);
                 }
                 else
                 {
-                    var xy = currentPray.Pray[prayIndex].Coordinate;
-                    
-                    rosaryTab[xy.Key, xy.Value] = 1;
-
-                    DrawPrayText(currentPray.Pray[prayIndex].PrayText, currentPray, prayIndex);
-
-                    DrawRosary(rosaryTab);
-
-                    prayIndex++;
+                    Next(currentXY, currentPray, ref prayIndex); 
                 }
+
+                prayIndex++;
             }
 
             stopWatch.Stop();
@@ -115,6 +91,32 @@ namespace RossaryApp
             Console.WriteLine($"Koniec w {GetStopWatchString(stopWatch.Elapsed)}");
 
             Console.ReadKey();
+        }
+
+        private static void Back(KeyValuePair<int, int> currentXY, IRosaryPray currentPray, ref int prayIndex)
+        {
+            prayIndex--;
+
+            currentXY = currentPray.Pray[prayIndex].Coordinate;
+
+            rosaryTab[currentXY.Key, currentXY.Value] = 0;
+
+            prayIndex--;
+
+            currentXY = currentPray.Pray[prayIndex].Coordinate;
+
+            DrawPrayText(currentPray.Pray[prayIndex].PrayText, currentPray, prayIndex);
+
+            DrawRosary(rosaryTab);
+        }
+
+        private static void Next(KeyValuePair<int,int> currentXY, IRosaryPray currentPray, ref int prayIndex)
+        {
+            rosaryTab[currentXY.Key, currentXY.Value] = 1;
+
+            DrawPrayText(currentPray.Pray[prayIndex].PrayText, currentPray, prayIndex);
+
+            DrawRosary(rosaryTab);
         }
 
         private static IRosaryPray ConsoleChangeLanguage()
